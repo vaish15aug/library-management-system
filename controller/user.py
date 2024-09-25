@@ -10,15 +10,15 @@ from sqlalchemy.orm import Session
 
 
 # user signup
-def createUser(data: UserCreate, db: Session = getDb()):
+def createUser(data: UserCreate):
     try:
         data_dict = data
         email = data_dict.email
         print("user", data_dict)
-        userExist = checkUser(email, db)
+        userExist = checkUser(email)
         if userExist is not None:
             raise HTTPException(status_code=400, detail="Account already exist")
-        userInfo = createUserDb(data_dict, db)
+        userInfo = createUserDb(data_dict)
         if userInfo is None:
             raise HTTPException(status_code=400, detail="Failed to create account")
         
@@ -28,13 +28,14 @@ def createUser(data: UserCreate, db: Session = getDb()):
         print("error",traceback.print_exception(e))
         raise HTTPException(status_code=500, detail=str(e))
 
+
 #  user login
-def userLogin(data: UserLogin , db:Session =getDb()):
+def userLogin(data: UserLogin):
     try:
         data_dict = data
         email = data_dict.email 
         print("user",data_dict)
-        userInfo = userLoginDb(data_dict, db)
+        userInfo = userLoginDb(data_dict)
         if userInfo is None:
             raise HTTPException(status_code=404, detail="User not found")  
         
@@ -54,11 +55,10 @@ def userLogin(data: UserLogin , db:Session =getDb()):
           raise HTTPException(status_code=500, detail=str(e))
     
 # update user
-
-def updateUser(data:UserUpdate,id:str, db: Session =getDb()):
+def updateUser(data:UserUpdate,id:str):
     try:
     
-        user = userUpdateDb(data,id,db)
+        user = userUpdateDb(data,id)
         if user is None:
             raise HTTPException(status_code=404,detail="user not found")
         return{"status":201, "message":"User update Successfully"}
@@ -69,9 +69,9 @@ def updateUser(data:UserUpdate,id:str, db: Session =getDb()):
 
 # delete user
 
-def delete_user(id=str, db: Session= getDb()):
+def delete_user(id=str):
     try:
-        result = deleteUserDb(id, db)
+        result = deleteUserDb(id)
         return {"message": "User deleted successfully", "user": result}
     except Exception as e:
         print(e)
@@ -80,9 +80,9 @@ def delete_user(id=str, db: Session= getDb()):
 
 # find user
 
-def get_user(id: str, db: Session = getDb()):
+def get_user(id: str):
     try:
-        db_user = find_userDb(id, db)
+        db_user = find_userDb(id)
         if db_user is None:
             raise HTTPException(status_code=404, detail="User not found")
         user_response = UserResponse.model_validate(db_user)

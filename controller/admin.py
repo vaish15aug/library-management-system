@@ -5,20 +5,20 @@ from schema.admin import AdminCreate,AdminLogin, AdminLogout
 from fastapi import HTTPException, Header
 import bcrypt
 import traceback
-from database import getDb
 from sqlalchemy.orm import Session
 
 
+
     # Admin signup 
-def createAdmin(data: AdminCreate, db: Session = getDb()):
+def createAdmin(data: AdminCreate):
     try:
         data_dict = data
         email = data_dict.email
         print("user", data_dict)
-        adminExist = checkAdminDb(email, db)
+        adminExist = checkAdminDb(email)
         if adminExist is not None:
             raise HTTPException(status_code=400, detail="Account already exist")
-        adminInfo = createAdminDb(data_dict, db)
+        adminInfo = createAdminDb(data_dict)
         if adminInfo is None:
             raise HTTPException(status_code=400, detail="Failed to create account")
         
@@ -31,14 +31,14 @@ def createAdmin(data: AdminCreate, db: Session = getDb()):
 
 # admin login
 
-def adminLogin(data: AdminLogin,  db:Session =getDb()):
+def adminLogin(data: AdminLogin):
     try:
         data_dict = data
         email = data_dict.email 
         print("admin",data_dict) 
        
         
-        adminInfo = adminLoginDb(data_dict, db)
+        adminInfo = adminLoginDb(data_dict)
         if adminInfo is None:
             raise HTTPException(status_code=400, detail="Failed to login ")
       
@@ -63,30 +63,24 @@ def adminLogin(data: AdminLogin,  db:Session =getDb()):
 
 # admin logout
 
-
-def admin_logout(Authorization: str = Header(None), db: Session = getDb()):
+def admin_logout(data: AdminLogout,Authorization: str = Header(None)):
     try:
-        # Check if the Authorization header is present
+        print(5)
         if Authorization is None:
             raise HTTPException(status_code=400, detail="Authorization header missing")
-        
-        # Ensure the Authorization header is in the correct Bearer format
+        print(6)
         if not Authorization.startswith("Bearer "):
             raise HTTPException(status_code=400, detail="Invalid authorization header format. Expected 'Bearer <token>'")
-        
-        # Extract the token from the Authorization header
+        print(7)
         token = Authorization.split(" ")[1]
-        
-        # Verify the token using the jwtToken helper
+        print(8)
         payload = verifyToken(token)
-        
-        # Call the logout service to invalidate the token or perform necessary logout operations
-        adminLogout(token, db)
-
+        adminLogout(token)
+        print(9)
         return {"message": "Logout successful"}
-    
+ 
     except HTTPException as http_err:
-        raise http_err  # Propagate HTTPExceptions for valid error responses
+        raise http_err
     except Exception as e:
         raise HTTPException(status_code=500, detail="An error occurred during logout")
 

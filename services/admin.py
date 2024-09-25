@@ -2,18 +2,17 @@ from schema.admin import AdminCreate, AdminLogin, AdminLogout
 from models.admin import Admin
 from sqlalchemy.orm import Session
 import bcrypt
-from database import getDb
 from fastapi import Depends
 from helpers.redisHelper import setData, getData,delData
 from helpers import redisHelper, jwtToken
 from helpers.jwtToken import verifyToken
 from helpers.redisHelper import setData
 from datetime import datetime, timedelta
-
-
+from database import getDb
+db:Session = getDb()
 
     
-def checkAdminDb(email, db:Session):
+def checkAdminDb(email):
     try:
 
         AdminInfo = db.query(Admin).filter(Admin.email == email).first()
@@ -27,7 +26,7 @@ def checkAdminDb(email, db:Session):
     
     
 # signup
-def createAdminDb(data, db: Session):
+def createAdminDb(data):
     try:
 
         AdminInfo = Admin(
@@ -52,7 +51,7 @@ def createAdminDb(data, db: Session):
 
 
 # login service
-def adminLoginDb(data: AdminLogin, db: Session):
+def adminLoginDb(data: AdminLogin):
     try:
         
         adminInfo = db.query(Admin).filter(Admin.email == data.email).first()
@@ -71,20 +70,18 @@ def adminLoginDb(data: AdminLogin, db: Session):
         db.rollback()
         raise Exception(e)
     
+    
 # admin logout 
-
-def adminLogout(token: str, db: Session):
+def adminLogout(data:AdminLogout, token: str):
     try:
         print(1)
-        # Decode token to get the admin_id or other identifying information
         payload = verifyToken(token)
-        admin_id = payload.get("admin_id")
+        super_id = payload.get("super_id")
         print(2)
-        if admin_id is None:
+        if super_id is None:
             raise Exception("Invalid token")
-        print(3)
-        # Delete the token from Redis or mark it as invalid
-        delData(f"admin:{admin_id}:refresh_token")
+        print(3) 
+        delData(f"admin:{super_id}:refresh_token")
         print(4)
         return True
 

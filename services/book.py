@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
 from models.book import Book
 from schema.book import BookCreate, BookUpdate
-
+from database import getDb
+db:Session = getDb()
 
 # create book
-def createBookDb(data: BookCreate, db: Session):
+def createBookDb(data: BookCreate):
     try:
         book = Book(
             book_name=data.book_name,
@@ -27,7 +28,7 @@ def createBookDb(data: BookCreate, db: Session):
 
 # get single book 
 
-def get_bookDb(id: str, db: Session):
+def get_bookDb(id: str):
     try:
        
         book = db.query(Book).filter(Book.id == id).first()
@@ -61,7 +62,7 @@ def get_all_bookDB(db: Session, offset: int = 0, limit: int = 10):
 
 
 # update book
-def updateBookDb(id:str,data: BookUpdate, db: Session):
+def updateBookDb(id:str,data: BookUpdate):
     try:
        
         # if not data.id:
@@ -91,7 +92,7 @@ def updateBookDb(id:str,data: BookUpdate, db: Session):
 
 # Delete book
 
-def deleteBookDb(id: str, db: Session):
+def deleteBookDb(id: str):
     try:
         
         db_book = db.query(Book).filter(Book.id == id).first()

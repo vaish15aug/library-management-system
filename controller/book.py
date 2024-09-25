@@ -7,9 +7,9 @@ from fastapi import Query
 
 
 # create a book
-def createBook(data: BookCreate, db: Session = getDb()):
+def createBook(data: BookCreate):
     try:
-        book = createBookDb(data, db)
+        book = createBookDb(data)
         if book is None:
             raise HTTPException(status_code=400, detail="Failed to create book")
         return { "status": 201, "message": "Book created successfully" }
@@ -20,10 +20,10 @@ def createBook(data: BookCreate, db: Session = getDb()):
 
     # get a single book
 
-def get_book(id: str, db: Session = getDb()):
+def get_book(id: str):
     try:
        
-        db_book = get_bookDb(id, db)
+        db_book = get_bookDb(id)
        
         if db_book is None:
             raise HTTPException(status_code=404, detail="Book not found")
@@ -39,9 +39,9 @@ def get_book(id: str, db: Session = getDb()):
 
 # update book
 
-def update_book(data: BookUpdate, id:str,db: Session =getDb()):
+def update_book(data: BookUpdate, id:str):
     try:
-        book = updateBookDb(data,id,  db)
+        book = updateBookDb(data,id)
         if book is None:
             raise HTTPException(status_code=404, detail="Book not found")
 
@@ -52,9 +52,9 @@ def update_book(data: BookUpdate, id:str,db: Session =getDb()):
 
 # delete book
 
-def delete_book(id=str, db: Session= getDb()):
+def delete_book(id=str):
     try:
-        result = deleteBookDb(id, db)
+        result = deleteBookDb(id)
         return {"message": "Book deleted successfully", "book": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -64,13 +64,10 @@ def delete_book(id=str, db: Session= getDb()):
 def get_all_books(
    
     offset: int = Query(0, ge=0, description="Pagination offset"),
-    limit: int = Query(10, le=100, description="Pagination limit"),
-    db: Session = getDb()
+    limit: int = Query(10, le=100, description="Pagination limit")
 ):
     try:
-        print(1)
-        books_data = get_all_bookDB(db, offset=offset, limit=limit)
-        print(2)
+        books_data = get_all_bookDB( offset=offset, limit=limit)
         return {"message": "Books list", "book": books_data}
         
     except Exception as e:

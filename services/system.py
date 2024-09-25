@@ -4,10 +4,11 @@ from models.system import System
 from datetime import date, timedelta,datetime
 from models.user import User
 from schema.system import CheckoutRequest, CheckoutResponse, ReturnRequest
-
+from database import getDb
+db:Session = getDb()
 
 #  checkout service
-def checkout_bookDb(book_id: str, user_id: str, db: Session):
+def checkout_bookDb(book_id: str, user_id: str):
     try:
         
         book = db.query(Book).filter(Book.id == book_id).first()
@@ -45,7 +46,7 @@ def checkout_bookDb(book_id: str, user_id: str, db: Session):
         raise Exception("Failed to create checkout record")
 
 # return book
-def return_book_db(data: ReturnRequest, db: Session):
+def return_book_db(data: ReturnRequest):
     try:
        
         system_entry = db.query(System).filter(System.id == data.id).first()
@@ -82,7 +83,7 @@ def return_book_db(data: ReturnRequest, db: Session):
 
  # fine management
 
-def manage_fineDb(book_id: int, fine: str, db: Session):
+def manage_fineDb(book_id: int, fine: str):
     try:
         if not isinstance(book_id, int):
             raise ValueError("book_id must be an integer")
@@ -117,31 +118,17 @@ def manage_fineDb(book_id: int, fine: str, db: Session):
    
 #  get all
 
-# def get_all_systemDb(db: Session, offset: int = 0, limit: int = 10):
-#     try:
-#         print(1)
-#         records_query = db.query(System).offset(offset).limit(limit)
-#         records = records_query.all()
-#         print(2)
-#         count = db.query(System).count()
-#         print(3)
-#         records_dict = [record.as_dict() for record in records] 
-#         print(4)
-#         return {"count": count, "rows": records_dict}
-#     except Exception as e:
-#         print(e)
-#         raise Exception("Failed to retrieve system records")
 
-def get_all_systemDb(db: Session, offset: int = 0, limit: int = 10):
+def get_all_systemDb( offset: int = 0, limit: int = 10):
     try:
-        print(1)
+       
         system_query = db.query(System).all()
-        print(2)
+       
         systems = system_query
-        print(3)
+     
        
         count = db.query(System).count()
-        print(4)
+       
         return {"count": count, "rows": systems}
         
     except Exception as e:

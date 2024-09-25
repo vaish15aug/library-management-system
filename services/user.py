@@ -2,9 +2,11 @@ from models.user import User
 from sqlalchemy.orm import Session
 import bcrypt
 from schema.user import UserLogin, UserUpdate
+from database import getDb
 
+db:Session = getDb()
 
-def checkUser(email, db:Session):
+def checkUser(email):
     try:
 
         userInfo = db.query(User).filter(User.email == email).first()
@@ -18,7 +20,7 @@ def checkUser(email, db:Session):
     
     
 # signup
-def createUserDb(data, db: Session):
+def createUserDb(data):
     try:
 
         userInfo = User(
@@ -43,7 +45,7 @@ def createUserDb(data, db: Session):
 
     # login
 
-def userLoginDb(data: UserLogin, db:Session):
+def userLoginDb(data: UserLogin):
     try:
        
         userInfo = db.query(User).filter(User.email == data.email).first()
@@ -65,7 +67,7 @@ def userLoginDb(data: UserLogin, db:Session):
 
 # update
 
-def userUpdateDb(data:UserUpdate,id:str, db:Session):
+def userUpdateDb(data:UserUpdate,id:str):
     try:
         
         # if not data.id:
@@ -91,7 +93,7 @@ def userUpdateDb(data:UserUpdate,id:str, db:Session):
 
 # delete
 
-def deleteUserDb(id: str, db: Session):
+def deleteUserDb(id: str):
     try:
         
         user = db.query(User).filter(User.id == id).first()
@@ -111,7 +113,7 @@ def deleteUserDb(id: str, db: Session):
 # find user
 
 
-def find_userDb(id: str, db: Session):
+def find_userDb(id: str):
     try:
         user = db.query(User).filter(User.id == id).first()
         if user is None:

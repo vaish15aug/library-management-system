@@ -35,3 +35,5 @@ def verifyToken(token: str):
     except JWTError as e:
         print(e)
         raise Exception(e)
+    
+

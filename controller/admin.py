@@ -1,4 +1,4 @@
-from services.admin import checkAdminDb, createAdminDb, adminLoginDb, adminLogout
+from services.admin import checkAdminDb, createAdminDb, adminLoginDb, adminlogoutDb
 from helpers.jwtToken import createAccessToken, createRefreshToken,verifyToken
 from helpers.redisHelper import setData, getData, delData
 from schema.admin import AdminCreate,AdminLogin, AdminLogout
@@ -51,10 +51,8 @@ def adminLogin(data: AdminLogin):
         
         responseData = {
             "accessToken": accessToken,
-            "refreshToken": refreshToken,
-            
+            "refreshToken": refreshToken, 
         }
-
         return { "status": 200, "message": "Login successfull", "data": responseData }
     except Exception as e:
         print("error",traceback.print_exception(e))
@@ -63,33 +61,10 @@ def adminLogin(data: AdminLogin):
 
 # admin logout
 
-def admin_logout(data: AdminLogout,Authorization: str = Header(None)):
+def admin_logout(id: str):
     try:
-        print(5)
-        if Authorization is None:
-            raise HTTPException(status_code=400, detail="Authorization header missing")
-        print(6)
-        if not Authorization.startswith("Bearer "):
-            raise HTTPException(status_code=400, detail="Invalid authorization header format. Expected 'Bearer <token>'")
-        print(7)
-        token = Authorization.split(" ")[1]
-        print(8)
-        payload = verifyToken(token)
-        adminLogout(token)
-        print(9)
-        return {"message": "Logout successful"}
- 
-    except HTTPException as http_err:
-        raise http_err
+        adminlogoutDb(id)
+        return {"message": "Admin logout successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail="An error occurred during logout")
-
-
-
-
- 
-
-
-
-
+        raise HTTPException(status_code=500, detail=str(e))
 

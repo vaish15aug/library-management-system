@@ -39,3 +39,7 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class UserLogout(BaseModel):
+   email:EmailStr
+   
+

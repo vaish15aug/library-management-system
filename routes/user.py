@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from schema.user import UserCreate, UserLogin, UserUpdate, UserResponse
-from controller.user import userLogin, createUser, updateUser, delete_user, get_user
+from controller.user import userLogin, createUser, updateUser, delete_user, get_user, user_logout
 from database import getDb
 from sqlalchemy.orm import Session
 
@@ -26,4 +26,11 @@ def deletes(id:str):
 @userRouter.get("/get_one/{id}")
 def findUser(id: str):
     return get_user(id)
+
+
+@userRouter.delete("/logout/{id}")
+def deletes(id:str):
+    return user_logout(id)
+
+
 

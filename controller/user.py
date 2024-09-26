@@ -1,4 +1,4 @@
-from services.user import checkUser, createUserDb, userLoginDb, userUpdateDb,deleteUserDb, find_userDb
+from services.user import checkUser, createUserDb, userLoginDb, userUpdateDb,deleteUserDb, find_userDb, userlogoutDb
 from helpers.jwtToken import createAccessToken, createRefreshToken
 from helpers.redisHelper import setData
 from schema.user import UserCreate, UserLogin, UserUpdate, UserResponse
@@ -91,3 +91,17 @@ def get_user(id: str):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+def user_logout(id: str):
+    try:
+        print(4)
+        userlogoutDb(id)
+        print(5)
+        return {"message": "User logout successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+

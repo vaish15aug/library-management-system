@@ -15,7 +15,7 @@ class AdminLogin(BaseModel):
 
 class AdminLogout(BaseModel):
     email: EmailStr
-    password: constr(min_length=8)
+    
 
 
    

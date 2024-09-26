@@ -3,7 +3,7 @@ from models.admin import Admin
 from sqlalchemy.orm import Session
 import bcrypt
 from fastapi import Depends
-from helpers.redisHelper import setData, getData,delData
+from helpers.redisHelper import setData, getData ,delData
 from helpers import redisHelper, jwtToken
 from helpers.jwtToken import verifyToken
 from helpers.redisHelper import setData
@@ -71,24 +71,24 @@ def adminLoginDb(data: AdminLogin):
         raise Exception(e)
     
     
-# admin logout 
-def adminLogout(data:AdminLogout, token: str):
+
+
+def adminlogoutDb(id: str):
     try:
         print(1)
-        payload = verifyToken(token)
-        super_id = payload.get("super_id")
+        db_admin = db.query(Admin).filter(Admin.id == id).first()
         print(2)
-        if super_id is None:
-            raise Exception("Invalid token")
-        print(3) 
-        delData(f"admin:{super_id}:refresh_token")
-        print(4)
-        return True
-
+        if db_admin:  
+            db.delete(db_admin)
+            db.commit()
+            return db_admin 
+        else:
+            raise Exception("admin  not found")
     except Exception as e:
         print(e)
-        raise Exception("An error occurred during logout")
-
+        print(3)
+        db.rollback()  
+        raise Exception(" An error occurred during logout")
 
 
    

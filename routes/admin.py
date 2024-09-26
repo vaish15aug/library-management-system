@@ -13,6 +13,7 @@ def create(create: AdminCreate):
 def login(login:AdminLogin):
     return adminLogin(login)
 
-@adminRouter.post("/logout")
-def logout(logout:AdminLogout):
-    return admin_logout(logout)
+
+@adminRouter.delete("/logout/{id}")
+def delete(id:str):
+    return admin_logout(id)

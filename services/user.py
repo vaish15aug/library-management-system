@@ -1,7 +1,7 @@
 from models.user import User
 from sqlalchemy.orm import Session
 import bcrypt
-from schema.user import UserLogin, UserUpdate
+from schema.user import UserLogin, UserUpdate, UserLogout
 from database import getDb
 
 db:Session = getDb()
@@ -124,6 +124,23 @@ def find_userDb(id: str):
         raise Exception("Failed to find user")
 
 
+def userlogoutDb(id: str):
+    try:
+        print(1)
+        db_user = db.query(User).filter(User.id == id).first()
+        print(2)
+        if db_user:  
+            db.delete(db_user)
+            db.commit()
+            return db_user 
+        else:
+            raise Exception("User not found")
+
+    except Exception as e:
+        print(3)
+        print(e)
+        db.rollback()  
+        raise Exception(" An error occurred during logout")
 
 
 

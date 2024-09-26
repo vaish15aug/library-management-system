@@ -1,4 +1,4 @@
-from schema.admin import AdminCreate, AdminLogin, AdminLogout
+from schema.admin import AdminCreate, AdminLogin, AdminLogout, AdminUpdate
 from models.admin import Admin
 from sqlalchemy.orm import Session
 import bcrypt
@@ -92,3 +92,25 @@ def adminlogoutDb(id: str):
 
 
    
+def adminUpdateDb(data:AdminUpdate,id:str):
+    try:
+        
+        # if not data.id:
+        #     raise ValueError("User ID must be provided for update")
+        admin = db.query(Admin).filter(Admin.id == id).first()
+        
+        if admin is None:
+            raise Exception("User not found")
+      
+        if data.name:
+            admin.name = data.name
+        if data.phone:
+            admin.phone= data.phone
+      
+        db.commit()
+        db.refresh(admin)
+        return admin
+    except Exception as e:
+        print(e)
+        db.rollback()
+        raise Exception("failed to update admin")

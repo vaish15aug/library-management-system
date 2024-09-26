@@ -1,7 +1,7 @@
-from services.admin import checkAdminDb, createAdminDb, adminLoginDb, adminlogoutDb
+from services.admin import checkAdminDb, createAdminDb, adminLoginDb, adminlogoutDb, adminUpdateDb
 from helpers.jwtToken import createAccessToken, createRefreshToken,verifyToken
 from helpers.redisHelper import setData, getData, delData
-from schema.admin import AdminCreate,AdminLogin, AdminLogout
+from schema.admin import AdminCreate,AdminLogin, AdminLogout, AdminUpdate
 from fastapi import HTTPException, Header
 import bcrypt
 import traceback
@@ -86,3 +86,15 @@ def admin_logout(id: str, payload: Dict ):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
+    
+def updateAdmin(data:AdminUpdate, id:str, payload: Dict):
+    try:
+        print("payload", payload)
+        user = adminUpdateDb(data,id)
+        if user is None:
+            raise HTTPException(status_code=404,detail=" Admin not found")
+        return{"status":201, "message":"Admin update Successfully"}
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e) )
+          

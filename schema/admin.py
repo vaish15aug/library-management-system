@@ -17,5 +17,8 @@ class AdminLogout(BaseModel):
     email: EmailStr
     
 
+class AdminUpdate(BaseModel):
+    name:str
+    phone:int
 
    

@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from schema.system import CheckoutRequest, CheckoutResponse, ReturnRequest, ManageFineRequest
 from models.book import Book
@@ -6,10 +6,13 @@ from database import getDb
 from fastapi import Query
 from services.system import checkout_bookDb, return_book_db, manage_fineDb,get_all_systemDb
 from models.user import User
+from helpers.jwtToken import verifyToken
+from typing import Dict
 
 #  checkout book
-def checkout_book(data: CheckoutRequest):
+def checkout_book(data: CheckoutRequest, payload: Dict= Depends(verifyToken) ):
     try:
+        print("payload", payload)
         print(0)
         checkout_record = checkout_bookDb(
             user_id=data.user_id,
@@ -24,8 +27,9 @@ def checkout_book(data: CheckoutRequest):
 
 
 # return book
-def return_book(data:ReturnRequest):
+def return_book(data:ReturnRequest, payload:Dict= Depends(verifyToken)):
     try:
+        print("payload",payload)
         result = return_book_db(data)
         return {"message": "Book successfully returned", "return": result}
     except Exception as e:
@@ -34,8 +38,9 @@ def return_book(data:ReturnRequest):
 
 
 #  fine management
-def manage_fines(data: ManageFineRequest):
+def manage_fines(data: ManageFineRequest, payload:Dict= Depends(verifyToken)):
     try:
+        print("payload",payload)
         fine_records = manage_fineDb(
             book_id=data.book_id,
             fine=data.fine,
@@ -53,11 +58,13 @@ def manage_fines(data: ManageFineRequest):
 
 
 def get_all_systems(
+    payload:Dict= Depends(verifyToken),
     offset: int = Query(0, ge=0, description="Pagination offset"),
     limit: int = Query(10, le=100, description="Pagination limit")
     
 ):
     try:
+        print("payload",payload)
         print(1)
         system_data = get_all_systemDb( offset=offset, limit=limit)
         print(2)

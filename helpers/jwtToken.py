@@ -1,7 +1,11 @@
 from jose import  JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from helpers.envVars import jwtSecret, jwtAlgorithm
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from helpers.redisHelper import getData
 
+security= HTTPBearer()
 
 def createAccessToken(payload: dict):
     try:
@@ -28,12 +32,39 @@ def createRefreshToken(payload: dict):
         raise Exception(e)
 
 
-def verifyToken(token: str):
+# def verifyToken(credentials: HTTPAuthorizationCredentials = Depends(security)):
+#     try:
+#         print("creds", credentials)
+#         token = credentials.credentials
+#         email= getData(token)
+#         if email is None:
+#             raise HTTPException(status_code=403, detail="forbidden")
+#         payload = jwt.decode(token, jwtSecret, algorithms = jwtAlgorithm)
+#         return payload
+#     except JWTError as e:
+#         print(e)
+#         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+def verifyToken(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
     try:
-        payload = jwt.decode(token, jwtSecret, algorithm = jwtAlgorithm)
-        return payload
-    except JWTError as e:
-        print(e)
-        raise Exception(e)
+        token = credentials.credentials  # Extract the token from the request
+        print("Token:", token)
+        
+        # Check the token in Redis (or other persistent storage)
+        email = getData(token)
+        if email is None:
+            raise HTTPException(status_code=403, detail="Forbidden: Invalid token")
+
+        # Decode the JWT token
+        payload = jwt.decode(token, jwtSecret, algorithms=[jwtAlgorithm])
+        return payload  # Return the decoded payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+
+    
+
     
 

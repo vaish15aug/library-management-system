@@ -6,6 +6,8 @@ from fastapi import HTTPException, Header
 import bcrypt
 import traceback
 from sqlalchemy.orm import Session
+from helpers.jwtToken import verifyToken
+from typing import Dict
 
 
 
@@ -49,11 +51,7 @@ def adminLogin(data: AdminLogin):
 
         setData(accessToken, adminInfo.email)
         
-        responseData = {
-            "accessToken": accessToken,
-            "refreshToken": refreshToken, 
-        }
-        return { "status": 200, "message": "Login successfull", "data": responseData }
+        return { "status": 200, "message": "Login successfull" }
     except Exception as e:
         print("error",traceback.print_exception(e))
         raise HTTPException(status_code=500, detail=str(e))
@@ -61,10 +59,30 @@ def adminLogin(data: AdminLogin):
 
 # admin logout
 
-def admin_logout(id: str):
-    try:
-        adminlogoutDb(id)
-        return {"message": "Admin logout successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+# def admin_logout(id: str):
+#     try:
+#         adminlogoutDb(id)
+#         return {"message": "Admin logout successfully"}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
+
+def admin_logout(id: str, payload: Dict ):
+    try:
+        print("Decoded token payload:", payload)
+
+        if not payload:
+            raise HTTPException(status_code=403, detail="Invalid token")
+        
+        result = adminlogoutDb(id)
+        if result is None:
+            raise HTTPException(status_code=404, detail="Admin not found")
+        
+        delData(payload["id"]) 
+        
+        print("Admin logged out successfully.")
+        return {"status": 201, "message": "Admin logged out successfully"}
+    
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))

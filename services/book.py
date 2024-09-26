@@ -44,7 +44,7 @@ def get_bookDb(id: str):
     
 #  get all book
 
-def get_all_bookDB(db: Session, offset: int = 0, limit: int = 10):
+def get_all_bookDB( offset: int = 0, limit: int = 10):
     try:
         print(1)
         books_query = db.query(Book).all()

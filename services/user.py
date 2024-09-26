@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 import bcrypt
 from schema.user import UserLogin, UserUpdate, UserLogout
 from database import getDb
+from middleware.auth import check_jwt
 
 db:Session = getDb()
 
@@ -112,7 +113,6 @@ def deleteUserDb(id: str):
 
 # find user
 
-
 def find_userDb(id: str):
     try:
         user = db.query(User).filter(User.id == id).first()
@@ -124,7 +124,8 @@ def find_userDb(id: str):
         raise Exception("Failed to find user")
 
 
-def userlogoutDb(id: str):
+
+def userlogoutDb(id:str):
     try:
         print(1)
         db_user = db.query(User).filter(User.id == id).first()

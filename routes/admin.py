@@ -1,6 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from schema.admin import AdminCreate, AdminLogin, AdminLogout
 from controller.admin import adminLogin, createAdmin, admin_logout
+from helpers.jwtToken import verifyToken
+from middleware import auth
+from typing import Dict
 
 adminRouter = APIRouter(prefix="/admin")
 
@@ -15,5 +18,5 @@ def login(login:AdminLogin):
 
 
 @adminRouter.delete("/logout/{id}")
-def delete(id:str):
-    return admin_logout(id)
+def delete(id:str,payload:Dict = Depends(verifyToken)):
+    return admin_logout(id, payload)

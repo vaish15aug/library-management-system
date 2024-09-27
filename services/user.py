@@ -68,7 +68,7 @@ def userLoginDb(data: UserLogin):
 
 # update
 
-def userUpdateDb(data:UserUpdate,id:str):
+def userUpdateDb(data:UserUpdate, id:str):
     try:
         
         # if not data.id:

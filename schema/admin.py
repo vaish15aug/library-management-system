@@ -21,4 +21,12 @@ class AdminUpdate(BaseModel):
     name:str
     phone:int
 
-   
+
+class AdminResponse(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+    phone: int
+    class Config:
+        from_attributes = True
+ 

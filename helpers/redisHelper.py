@@ -11,4 +11,5 @@ def getData(key):
     return value
 
 def delData(key):
-    client.delete(key)
+    value = client.delete(key)
+    return value 

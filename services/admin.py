@@ -114,3 +114,15 @@ def adminUpdateDb(data:AdminUpdate,id:str):
         print(e)
         db.rollback()
         raise Exception("failed to update admin")
+    
+
+#   find admin
+def find_adminDb(id: str):
+    try:
+        user = db.query(Admin).filter(Admin.id == id).first()
+        if user is None:
+            raise Exception("admin not found")
+        return user
+    except Exception as e:
+        print(e)
+        raise Exception("Failed to find admin")

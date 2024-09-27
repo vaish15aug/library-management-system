@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from schema.user import UserCreate, UserLogin, UserUpdate, UserResponse
 from controller.user import userLogin, createUser, updateUser, delete_user, get_user, user_logout
 from database import getDb
 from sqlalchemy.orm import Session
 from helpers.jwtToken import verifyToken
 from middleware import auth
-from typing import Dict
+from typing import Dict, Annotated
 
 userRouter = APIRouter(prefix="/user")
 
@@ -17,23 +17,23 @@ def login(login: UserLogin):
 def create(create: UserCreate):
     return createUser(create)
 
-@userRouter.put("/update/{id}")
-def update(id:str,update:UserUpdate,  payload:Dict = Depends(verifyToken)):
-    return updateUser(update,id, payload)
+@userRouter.put("/update")
+def update(update:UserUpdate,  payload:Dict = Depends(verifyToken)):
+    return updateUser(update, payload)
 
 @userRouter.delete("/user_delete/{id}")
-def deletes(id:str,  payload:Dict = Depends(verifyToken)):
-    return delete_user(id,payload)
+def deletes( payload:Dict = Depends(verifyToken)):
+    return delete_user(payload)
 
 
-@userRouter.get("/get_one/{id}")
-def findUser(id: str, payload:Dict = Depends(verifyToken)):
-    return get_user(id, payload)
+@userRouter.get("/get_one")
+def findUser(payload:Dict = Depends(verifyToken)):
+    return get_user(payload)
 
 
-@userRouter.delete("/logout/{id}")
-def deletes( id:str, payload:Dict = Depends(verifyToken)):
-    return user_logout(id, payload)
+@userRouter.delete("/logout")
+def deletes(  payload:Dict = Depends(verifyToken), authorization:Annotated[str | None,Header()] = None):
+    return user_logout(payload, authorization)
 
 
 

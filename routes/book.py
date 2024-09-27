@@ -17,16 +17,21 @@ def create(create: BookCreate, payload:Dict = Depends(verifyToken)):
     return createBook(create, payload)
 
 @bookRouter.get("/fetch_one/{id}")
-def findBook(id: str, payload:Dict = Depends(verifyToken)):
+def findBook( id:str,payload:Dict = Depends(verifyToken)):
     return get_book(id, payload)
+
+
 
 @bookRouter.put("/update/{id}")
 def update(id:str,update:BookUpdate,payload:Dict = Depends(verifyToken)):
     return update_book(id,update, payload)
 
 @bookRouter.delete("/delete/{id}")
-def delete(id:str, payload:Dict = Depends(verifyToken)):
-    return delete_book(id,payload)
+def delete(payload:Dict = Depends(verifyToken)):
+    return delete_book(payload)
+
+
+
 
 @bookRouter.get("/fetch_all")
 def getA(offset: int = 0, limit: int = 10, payload:Dict = Depends(verifyToken)):

@@ -6,19 +6,20 @@ from database import getDb
 from fastapi import Query
 from helpers.jwtToken import verifyToken
 from typing import Dict
+from jose import JWTError
 
-
-# create a book
+# # create a book
 def createBook(data: BookCreate, payload:Dict):
     try:
         print("payload", payload)
         book = createBookDb(data)
+        if not payload.get("is_super"):
+            raise HTTPException(status_code=403, detail="You are not authorized to create a book")
         if book is None:
             raise HTTPException(status_code=400, detail="Failed to create book")
         return { "status": 201, "message": "Book created successfully" }
     except Exception as e:
        raise HTTPException(status_code=500, detail=str(e))
-    
 
 
     # get a single book
@@ -26,6 +27,7 @@ def createBook(data: BookCreate, payload:Dict):
 def get_book(id: str,payload:Dict):
     try:
         print("payload", payload)
+      
         db_book = get_bookDb(id)
        
         if db_book is None:
@@ -39,13 +41,13 @@ def get_book(id: str,payload:Dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
 # update book
-
 def update_book(data: BookUpdate, id:str, payload:Dict):
     try:
         print("payload", payload)
         book = updateBookDb(data,id)
+        if not payload.get("is_super"):
+           raise HTTPException(status_code=403, detail="You are not authorized to update a book")
         if book is None:
             raise HTTPException(status_code=404, detail="Book not found")
 
@@ -53,17 +55,21 @@ def update_book(data: BookUpdate, id:str, payload:Dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
 # delete book
+
 
 def delete_book(id=str, payload: Dict= Depends(verifyToken)):
     try:
         print("payload", payload)
         result = deleteBookDb(id)
+        if not payload.get("is_super"):
+             raise HTTPException(status_code=403, detail="You are not authorized to delete a book")
         return {"message": "Book deleted successfully", "book": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+  
     
+
 # GET all book list
 
 def get_all_books(

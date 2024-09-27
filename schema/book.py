@@ -11,7 +11,6 @@ class BookCreate(BaseModel):
     
    
 class BookUpdate(BaseModel):
-    # id:int
     book_name: str
     author: str
     category: str

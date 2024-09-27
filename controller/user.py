@@ -12,6 +12,7 @@ from helpers.jwtToken import verifyToken
 from typing import Dict
 from helpers import jwtToken
 from jose import JWTError
+import json
 
 
 # user signup
@@ -47,19 +48,24 @@ def userLogin(data: UserLogin):
         payload = { "id": userInfo.id, "email": userInfo.email }
         accessToken = createAccessToken(payload)
         refreshToken = createRefreshToken(payload)
-       
+        detail={
+           "accessToken": accessToken,
+           "refreshToken": refreshToken
+        }
         setData(accessToken, userInfo.email)
         
-        return { "status": 200, "message": "Login successfull" }
+        return { "status": 200, "message": "Login successfull", "data":detail }
     except Exception as e:
           print("error",e)
           raise HTTPException(status_code=500, detail=str(e))
     
 # update user
-def updateUser(data:UserUpdate, id:str, payload: Dict):
+def updateUser(data:UserUpdate, payload: Dict):
     try:
         print("payload", payload)
-        user = userUpdateDb(data,id)
+        id = payload["id"]
+        print("Updating user with ID:", id)
+        user = userUpdateDb(data, id)
         if user is None:
             raise HTTPException(status_code=404,detail="user not found")
         return{"status":201, "message":"User update Successfully"}
@@ -70,9 +76,11 @@ def updateUser(data:UserUpdate, id:str, payload: Dict):
 
 # delete user
 
-def delete_user(id=str, payload: Dict= Depends(verifyToken)):
+def delete_user(payload: Dict):
     try:
         print("payload", payload)
+        id = payload["id"]
+        print("Updating user with ID:", id)
         result = deleteUserDb(id)
         if result is None:
             raise HTTPException(status_code=404, detail="User not found")
@@ -84,9 +92,10 @@ def delete_user(id=str, payload: Dict= Depends(verifyToken)):
 
 # find user
 
-def get_user(id: str, payload: Dict):
+def get_user(payload: Dict):
     try:
         print("payload", payload)
+        id = payload["id"]
         db_user = find_userDb(id)
         if db_user is None:
             raise HTTPException(status_code=404, detail="User not found")
@@ -97,34 +106,16 @@ def get_user(id: str, payload: Dict):
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
+# user logout
 
-
-# def user_logout(id: str):
-#     try:
-#         print(4)
-#         result=userlogoutDb(id)
-#         if result is None:
-#             raise HTTPException(status_code=404, detail="User not found")
-#         delData(verifyToken)
-#         print(5)
-#         return {"status":201,"message": "User logout successfully"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-def user_logout(id: str, payload: Dict ):
+def user_logout( payload: Dict, authorization: str):
     try:
         print("Decoded token payload:", payload)
-
-        if not payload:
-            raise HTTPException(status_code=403, detail="Invalid token")
-        
-        result = userlogoutDb(id)
-        if result is None:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        delData(payload["id"]) 
+        print("headers", authorization)
+        token=authorization.split(" ")[1]
+        print("token",token)
+        val = delData(token) 
+        print("value", val)
         
         print("User logged out successfully.")
         return {"status": 201, "message": "User logged out successfully"}

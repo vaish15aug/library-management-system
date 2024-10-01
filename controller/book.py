@@ -1,11 +1,11 @@
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from schema.book import BookCreate, BookResponse, BookUpdate, DeleteBook 
-from services.book import createBookDb, get_bookDb, updateBookDb, deleteBookDb, get_all_bookDB
+from services.book import createBookDb, get_bookDb, updateBookDb, deleteBookDb, get_all_bookDB,search_booksDb
 from database import getDb
 from fastapi import Query
 from helpers.jwtToken import verifyToken
-from typing import Dict
+from typing import Dict, Optional
 from jose import JWTError
 
 # # create a book
@@ -85,5 +85,24 @@ def get_all_books(
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# serach book
+
+
+def search_books(search_param: str = None, category: str = None, is_available: bool = None,payload: Dict= Depends(verifyToken)):
+    try:
+        print("payload", payload)
+        
+        db_books = search_booksDb(search_param=search_param, category=category, is_available=is_available)
+        
+        if not db_books:
+            raise HTTPException(status_code=404, detail="No books found matching the criteria.")
+        
+        return [BookResponse.model_validate(book) for book in db_books]
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 

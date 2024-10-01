@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
 from models.book import Book
-from schema.book import BookCreate, BookUpdate
+from schema.book import BookCreate, BookUpdate, BookResponse
 from database import getDb
+from typing import List, Optional
 db:Session = getDb()
-
+from sqlalchemy import or_
 # create book
 def createBookDb(data: BookCreate):
     try:
@@ -108,5 +109,28 @@ def deleteBookDb(id: str):
         print(e)
         db.rollback()  
         raise Exception("Failed to delete book ")
+    
+# search book 
 
+def search_booksDb(search_param: str = None, category: str = None, is_available: bool = None):
+    try:
+        query = db.query(Book)
+        
+        if search_param:
+            query = query.filter(or_(
+                Book.book_name.ilike(f"%{search_param}%"),
+                Book.author.ilike(f"%{search_param}%")
+            ))
+        if category:
+            query = query.filter(Book.category.ilike(f"%{category}%"))
+        
+        if is_available is not None:
+            query = query.filter(Book.is_available == is_available)
+
+        return query.all()
+    except Exception as e:
+        raise Exception(f"Failed to search books: {str(e)}")
+
+
+    
 

@@ -29,9 +29,10 @@ class BookResponse(BaseModel):
     book_name: str
     author: str
     category: str
-    publish_date: date
+    # publish_date: date
     is_available: bool
     class Config:
         from_attributes = True
+
 
  

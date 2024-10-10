@@ -34,8 +34,7 @@ def createAdminDb(data):
             email = data.email,
             phone = data.phone,
             is_super= data.is_super,
-            password = bcrypt.hashpw(data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-                       )
+            password = bcrypt.hashpw(data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"))
         db.add(AdminInfo)
         db.commit()
         db.refresh(AdminInfo)
@@ -126,3 +125,5 @@ def find_adminDb(id: str):
     except Exception as e:
         print(e)
         raise Exception("Failed to find admin")
+    
+

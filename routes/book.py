@@ -31,9 +31,6 @@ def delete(payload:Dict = Depends(verifyToken)):
 def getA(offset: int = 0, limit: int = 10, payload:Dict = Depends(verifyToken)):
     return get_all_books(payload=payload,offset=offset, limit=limit)
 
-# @bookRouter.get("/search")
-# def search(category:str, is_available:bool, payload:Dict=Depends(verifyToken)):
-#     return search_books( payload, category, is_available)
 
 @bookRouter.get("/search")
 def search_books_route(
@@ -44,6 +41,6 @@ def search_books_route(
     search_param: str = None,
     payload: Dict = Depends(verifyToken)
 ):
-    return search_books(search_param=search_param, category=category, is_available=is_available, payload=payload)
+    return search_books(search_param = search_param, category = category, is_available = is_available, payload = payload)
 
 

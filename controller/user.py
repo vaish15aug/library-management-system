@@ -3,7 +3,6 @@ from helpers.jwtToken import createAccessToken, createRefreshToken
 from helpers.redisHelper import setData,getData, delData
 from schema.user import UserCreate, UserLogin, UserUpdate, UserResponse
 from fastapi import  HTTPException, Depends
-import bcrypt
 import traceback
 from database import getDb
 from sqlalchemy.orm import Session
@@ -12,36 +11,54 @@ from helpers.jwtToken import verifyToken
 from typing import Dict
 from helpers import jwtToken
 from jose import JWTError
-import json
 
 
 # user signup
-def createUser(data: UserCreate):
+
+
+def createUser(data:UserCreate):
     try:
-        data_dict = data
-        email = data_dict.email
-        print("user", data_dict)
+        if 'email' not in data:
+            raise HTTPException(status_code=400, detail="Email is required")
+        if 'password' not in data:
+            raise HTTPException(status_code=400, detail="Password is required")
+        if 'name' not in data:
+            raise HTTPException(status_code=400, detail="Name is required")
+        if 'phone' not in data:
+            raise HTTPException(status_code=400, detail="Phone number is required")
+
+        email = data['email']
         userExist = checkUser(email)
         if userExist is not None:
-            raise HTTPException(status_code=400, detail="Account already exist")
-        userInfo = createUserDb(data_dict)
+            raise HTTPException(status_code=400, detail="Account already exists")
+
+        userInfo = createUserDb(data)
         if userInfo is None:
             raise HTTPException(status_code=400, detail="Failed to create account")
-        
-        return { "status": 201, "message": "Account created successfully" }
+
+        return { "status": 201, "message" : "Account created successfully" }
+
+    except HTTPException as http_ex:
+        raise http_ex
     
     except Exception as e:
-        print("error",traceback.print_exception(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        print("error",e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 #  user login
-def userLogin(data: UserLogin):
+def userLogin(data: dict):
     try:
+        if 'email' not in data:
+            raise HTTPException(status_code=400, detail="Email is required")
+        if 'password' not in data:
+            raise HTTPException(status_code=400, detail="Password is required")
         data_dict = data
-        email = data_dict.email 
+        email = data_dict["email"]
+        # email = data_dict.email 
         print("user",data_dict)
-        userInfo = userLoginDb(data_dict)
+        # userInfo = userLoginDb(email)
+        userInfo = userLoginDb(data) 
         if userInfo is None:
             raise HTTPException(status_code=404, detail="User not found")  
         
@@ -54,11 +71,19 @@ def userLogin(data: UserLogin):
         }
         setData(accessToken, userInfo.email)
         
-        return { "status": 200, "message": "Login successfull", "data":detail }
+        return { "status": 200,"message": "Login successful" , "data":detail }
+    
+    except HTTPException as http_ex:
+        raise http_ex
     except Exception as e:
           print("error",e)
           raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
     
+
 # update user
 def updateUser(data:UserUpdate, payload: Dict):
     try:
@@ -101,7 +126,7 @@ def get_user(payload: Dict):
             raise HTTPException(status_code=404, detail="User not found")
         user_response = UserResponse.model_validate(db_user)
         return user_response
-        
+         
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))

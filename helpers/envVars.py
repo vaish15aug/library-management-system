@@ -11,7 +11,12 @@ db_host = os.getenv("DB_HOST")
 db_port = os.getenv("DB_PORT")
 db_password= os.getenv("DB_PASSWORD")                  
 mongoUri = os.getenv("MONGO_URI")
-jwtSecret = os.getenv("JWT_SECRET_KEY")
-jwtAlgorithm = os.getenv("JWT_ALGORITHM")
+# jwtSecret = os.getenv("JWT_SECRET_KEY")
+# jwtAlgorithm = os.getenv("JWT_ALGORITHM")
 redisHost = os.getenv("REDIS_HOST")
 redisPort = os.getenv("REDIS_PORT")
+
+
+jwtSecret = "Abcd0014"  # Replace with your actual secret key
+jwtAlgorithm = "HS256"  # Ensure this is a valid algorithm like HS256, RS256, etc.
+

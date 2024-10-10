@@ -32,18 +32,6 @@ def createRefreshToken(payload: dict):
         raise Exception(e)
 
 
-# def verifyToken(credentials: HTTPAuthorizationCredentials = Depends(security)):
-#     try:
-#         print("creds", credentials)
-#         token = credentials.credentials
-#         email= getData(token)
-#         if email is None:
-#             raise HTTPException(status_code=403, detail="forbidden")
-#         payload = jwt.decode(token, jwtSecret, algorithms = jwtAlgorithm)
-#         return payload
-#     except JWTError as e:
-#         print(e)
-#         raise HTTPException(status_code=401, detail="Invalid token")
 
 
 def verifyToken(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:

@@ -62,9 +62,9 @@ def manage_fines(data: ManageFineRequest, payload:Dict= Depends(verifyToken)):
 
 # get all system list
 def get_all_systems(
-    payload:Dict= Depends(verifyToken),
-    offset: int = Query(0, ge=0, description="Pagination offset"),
-    limit: int = Query(10, le=100, description="Pagination limit")
+    payload : Dict= Depends(verifyToken),
+    offset : int = Query(0, ge=0, description="Pagination offset"),
+    limit : int = Query(10, le=100, description="Pagination limit")
     
 ):
     try:

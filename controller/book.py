@@ -9,31 +9,48 @@ from typing import Dict, Optional
 from jose import JWTError
 
 # # create a book
-def createBook(data: BookCreate, payload:Dict):
+# def createBook(data: BookCreate, payload:Dict):
+#     try:
+#         print("payload", payload)
+#         book = createBookDb(data)
+#         if not payload.get("is_super"):
+#             raise HTTPException(status_code=403, detail="You are not authorized to create a book")
+#         if book is None:
+#             raise HTTPException(status_code=400, detail="Failed to create book")
+#         return { "status": 201, "message": "Book created successfully" }
+#     except Exception as e:
+#        raise HTTPException(status_code=500, detail=str(e))
+
+def createBook(data: Dict, payload: Dict):
     try:
+    
+        book_data = BookCreate(**data)  
         print("payload", payload)
-        book = createBookDb(data)
+        book = createBookDb(book_data)
+    
         if not payload.get("is_super"):
             raise HTTPException(status_code=403, detail="You are not authorized to create a book")
+        
         if book is None:
             raise HTTPException(status_code=400, detail="Failed to create book")
-        return { "status": 201, "message": "Book created successfully" }
+        
+        return {"status": 201, "message": "Book created successfully"}
+    
     except Exception as e:
-       raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
     # get a single book
 
-def get_book(id: str,payload:Dict):
+def get_book(id: str):
     try:
-        print("payload", payload)
-      
+
         db_book = get_bookDb(id)
        
         if db_book is None:
             raise HTTPException(status_code=404, detail="Book not found")
         
-        book_response = BookResponse.model_validate(db_book)
+        book_response = BookResponse.model_validate(db_book).model_dump()
         
         return book_response
         
@@ -44,8 +61,10 @@ def get_book(id: str,payload:Dict):
 # update book
 def update_book(data: BookUpdate, id:str, payload:Dict):
     try:
+        book = updateBookDb(id, BookUpdate(**data))
+        
         print("payload", payload)
-        book = updateBookDb(data,id)
+        # book = updateBookDb(book_data,id)
         if not payload.get("is_super"):
            raise HTTPException(status_code=403, detail="You are not authorized to update a book")
         if book is None:
@@ -90,7 +109,7 @@ def get_all_books(
 # serach book
 
 
-def search_books(search_param: str = None, category: str = None, is_available: bool = None,payload: Dict= Depends(verifyToken)):
+def search_books(search_param: str = None, category: str = None, is_available: bool = None, payload: Dict= Depends(verifyToken)):
     try:
         print("payload", payload)
         

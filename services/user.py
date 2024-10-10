@@ -25,11 +25,12 @@ def createUserDb(data):
     try:
 
         userInfo = User(
-            name= data.name,
-            email = data.email,
-            phone = data.phone,
-            password = bcrypt.hashpw(data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            name= data['name'],
+            email = data['email'],
+            phone = data['phone'],
+            password = bcrypt.hashpw(data['password'].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
                        )
+        
         db.add(userInfo)
         db.commit()
         db.refresh(userInfo)
@@ -46,17 +47,17 @@ def createUserDb(data):
 
     # login
 
-def userLoginDb(data: UserLogin):
+def userLoginDb(data: dict):
     try:
        
-        userInfo = db.query(User).filter(User.email == data.email).first()
+        userInfo = db.query(User).filter(User.email == data['email']).first()
         print(userInfo)
         if userInfo is None:
             return None
         
         password = userInfo.password
         
-        if not bcrypt.checkpw( data.password.encode("utf-8"),
+        if not bcrypt.checkpw( data['password'].encode("utf-8"),
             password.encode("utf-8")):
             raise Exception("Incorrect password")
        

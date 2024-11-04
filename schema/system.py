@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
 
+
 class CheckoutRequest(BaseModel):
     id:int
     user_id: int
@@ -25,6 +26,7 @@ class ReturnRequest(BaseModel):
 
 class ManageFineRequest(BaseModel):
     book_id: int
+    user_id: int
     fine: str
  
     

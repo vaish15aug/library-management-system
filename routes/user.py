@@ -32,7 +32,7 @@ def findUser(payload:Dict = Depends(verifyToken)):
 
 
 @userRouter.delete("/logout")
-def deletes(  payload:Dict = Depends(verifyToken), authorization:Annotated[str | None,Header()] = None):
+def deletes(  payload:Dict = Depends(verifyToken), authorization : Annotated[str | None, Header()] = None):
     return user_logout(payload, authorization)
 
 

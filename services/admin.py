@@ -14,7 +14,7 @@ db:Session = getDb()
     
 def checkAdminDb(email):
     try:
-
+        
         AdminInfo = db.query(Admin).filter(Admin.email == email).first()
         if AdminInfo:
             return AdminInfo
@@ -30,11 +30,11 @@ def createAdminDb(data):
     try:
 
         AdminInfo = Admin(
-            name= data.name,
-            email = data.email,
-            phone = data.phone,
-            is_super= data.is_super,
-            password = bcrypt.hashpw(data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"))
+            name= data['name'],
+            email = data['email'],
+            phone = data['phone'],
+            is_super= data['is_super'],
+            password = bcrypt.hashpw(data['password'].encode("utf-8"), bcrypt.gensalt()).decode("utf-8"))
         db.add(AdminInfo)
         db.commit()
         db.refresh(AdminInfo)
@@ -53,13 +53,13 @@ def createAdminDb(data):
 def adminLoginDb(data: AdminLogin):
     try:
         
-        adminInfo = db.query(Admin).filter(Admin.email == data.email).first()
+        adminInfo = db.query(Admin).filter(Admin.email == data['email']).first()
         print(adminInfo)
         if adminInfo is None:
             return None
 
         password = adminInfo.password
-        if not bcrypt.checkpw(data.password.encode("utf-8"),
+        if not bcrypt.checkpw(data['password'].encode("utf-8"),
             password.encode("utf-8")):
             raise Exception("Incorrect password")
 
@@ -91,39 +91,69 @@ def adminlogoutDb(id: str):
 
 
    
-def adminUpdateDb(data:AdminUpdate,id:str):
-    try:
+# def adminUpdateDb(data:AdminUpdate,id:str):
+#     try:
         
-        # if not data.id:
-        #     raise ValueError("User ID must be provided for update")
+#         # if not data.id:
+#         #     raise ValueError("User ID must be provided for update")
+#         admin = db.query(Admin).filter(Admin.id == id).first()
+        
+#         if admin is None:
+#             raise Exception("User not found")
+#         if "name" in data:
+#             admin.name = data["name"]
+#             print(f"Updated name to: {admin.name}")
+#         if "phone" in data:
+#             admin.phone = data["phone"]
+#             print(f"Updated phone to: {admin.phone}")
+#         # if data.name:
+#         #     admin.name = data.name
+#         # if data.phone:
+#         #     admin.phone= data.phone
+      
+#         db.commit()
+#         db.refresh(admin)
+#         return admin
+#     except Exception as e:
+#         print(e)
+#         db.rollback()
+#         raise Exception("failed to update admin")
+
+def adminUpdateDb(data: AdminUpdate, id: str):
+    try:
         admin = db.query(Admin).filter(Admin.id == id).first()
         
         if admin is None:
-            raise Exception("User not found")
-      
+            # raise Exception("Admin not found")
+            return None
         if data.name:
             admin.name = data.name
+            print(f"Updated name to: {admin.name}")
         if data.phone:
-            admin.phone= data.phone
-      
+            admin.phone = data.phone
+            print(f"Updated phone to: {admin.phone}")
+    
         db.commit()
         db.refresh(admin)
         return admin
+
     except Exception as e:
-        print(e)
+        print("Exception in updating admin:", e)
         db.rollback()
-        raise Exception("failed to update admin")
-    
+        raise Exception("Failed to update admin")
+
+
 
 #   find admin
 def find_adminDb(id: str):
     try:
         user = db.query(Admin).filter(Admin.id == id).first()
-        if user is None:
-            raise Exception("admin not found")
+        # if user is None:
+        #     raise Exception("admin not found")
         return user
     except Exception as e:
         print(e)
         raise Exception("Failed to find admin")
     
+
 

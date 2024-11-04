@@ -1,5 +1,9 @@
 from pydantic import BaseModel, EmailStr, constr
+from typing import Optional
 
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[int] = None
 
 class UserCreate(BaseModel):
     name: str
@@ -7,7 +11,7 @@ class UserCreate(BaseModel):
     password:constr(min_length=8)
     phone: int
    
-    
+
 class UserLogin(BaseModel):
     email: EmailStr
     password:constr(min_length=8)
@@ -18,18 +22,16 @@ class UserLogout(BaseModel):
     password:constr(min_length=8)
 
 
-class UserUpdate(BaseModel):
-    # id:int
-    name:str
-    phone:int
+# class UserUpdate(BaseModel):
+#     # id:int
+#     name:str
+#     phone:int
 
 class DeleteUser(BaseModel):
     name: str
     email: EmailStr
     password:constr(min_length=8)
     phone: int
-
-
 
 class UserResponse(BaseModel):
     id: int

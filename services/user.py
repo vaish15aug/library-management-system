@@ -4,7 +4,6 @@ import bcrypt
 from schema.user import UserLogin, UserUpdate, UserLogout
 from database import getDb
 from middleware.auth import check_jwt
-
 db:Session = getDb()
 
 def checkUser(email):
@@ -46,7 +45,6 @@ def createUserDb(data):
     
 
     # login
-
 def userLoginDb(data: dict):
     try:
        
@@ -69,29 +67,30 @@ def userLoginDb(data: dict):
 
 # update
 
-def userUpdateDb(data:UserUpdate, id:str):
+def userUpdateDb(data: UserUpdate, id: str):
     try:
-        
-        # if not data.id:
-        #     raise ValueError("User ID must be provided for update")
         user = db.query(User).filter(User.id == id).first()
         
         if user is None:
-            raise Exception("User not found")
-      
+            # raise Exception("User not found")
+            return None
+        
         if data.name:
             user.name = data.name
+            print(f"Updated name to: {user.name}")
         if data.phone:
-            user.phone= data.phone
-      
+            user.phone = data.phone
+            print(f"Updated phone to: {user.phone}")
+
         db.commit()
         db.refresh(user)
         return user
     except Exception as e:
-        print(e)
+        print("Exception in updating user:", e)
         db.rollback()
-        raise Exception("failed to update user")
-    
+        raise Exception("Failed to update user")
+
+
 
 # delete
 
@@ -106,6 +105,7 @@ def deleteUserDb(id: str):
             return user  
         else:
             raise Exception("User  not found")
+            
 
     except Exception as e:
         print(e)
@@ -117,8 +117,8 @@ def deleteUserDb(id: str):
 def find_userDb(id: str):
     try:
         user = db.query(User).filter(User.id == id).first()
-        if user is None:
-            raise Exception("user not found")
+        # if user is None:
+        #     raise Exception("user not found")
         return user
     except Exception as e:
         print(e)

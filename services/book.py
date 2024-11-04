@@ -66,9 +66,6 @@ def get_all_bookDB( offset: int = 0, limit: int = 10):
 def updateBookDb(id:str,data: BookUpdate):
     try:
        
-        # if not data.id:
-        #     raise ValueError("Book ID must be provided for update")
-       
         book = db.query(Book).filter(Book.id == id).first()
       
         if book is None:
@@ -91,6 +88,7 @@ def updateBookDb(id:str,data: BookUpdate):
         db.rollback()
         raise Exception("Failed to update book")
 
+
 # Delete book
 
 def deleteBookDb(id: str):
@@ -112,12 +110,12 @@ def deleteBookDb(id: str):
     
 # search book 
 
-def search_booksDb(search_param: str = None, category: str = None, is_available: bool = None):
+def  search_booksDb(search_param: str = None, category: str = None, is_available: bool = None):
     try:
         query = db.query(Book)
         
         if search_param:
-            query = query.filter(or_(
+            query = query.filter(or_(   
                 Book.book_name.ilike(f"%{search_param}%"),
                 Book.author.ilike(f"%{search_param}%")
             ))
@@ -134,3 +132,4 @@ def search_booksDb(search_param: str = None, category: str = None, is_available:
 
     
 
+ 

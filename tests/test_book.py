@@ -1,156 +1,323 @@
 import pytest
-from controller.book import get_book, get_all_books, search_books, createBook, update_book, delete_book
+from controller.book import createBook,get_book, get_all_books, search_books,  update_book, delete_book
 from fastapi import HTTPException
-from models.book import Book
-# #1) get single book by its id
-# @pytest.mark.parametrize(("id"),(77,1,78))
-# def test_get_book(id):
-#     book_details = get_book(id)
-#     assert len(book_details) > 0, f"There is no book with this id => {id}"
+from schema.book import BookUpdate
+   
+
+#    1. create book
 
 
-# #2) search a book by its name or author.
-# @pytest.mark.parametrize(("search_param"),("Harper Lee","DSA"))
-# def test_search_books(search_param):
-#     book_details = search_books(search_param)
-#     assert len(book_details) > 0, f"There is no book => {search_param}"
-
-# @pytest.mark.parametrize(("category"),( "Drama"))
-# def test_search_books_category(category):
-#    book_details = search_books(category)
-#    assert len(book_details) > 0, f"There is no book with this category => {category}"
-
-# @pytest.mark.parametrize(("is_available"),("true", "false"))
-# def test_search_books_is_available(is_available):
-#     book_details = search_books(is_available)
-#     assert len(book_details) > 0, f"There is no book available => {is_available}"
-
-# #3) get a book list
-# @pytest.mark.parametrize(("offset","limit","expected_count"),[(0, 10, 2),(0, 5, 5),(10, 5, 0)])
-# def test_get_all_books(offset, limit,expected_count):
-#     book_details = get_all_books(offset, limit,expected_count)
-#     assert len(book_details) > 0, f"there is no book list => {offset, limit,expected_count}"
-
-
-# # 4) create a book
-# @pytest.mark.parametrize("data", "payload",[
-#   ({"book_name": "1920000", "author":"ram", "category":"Drama" , "publish_date":" 2000-07-23", "is_available":True},
-#    {"is_super": True}),
-# ])
-# def test_createBook(data,payload):
-#     book_details = createBook("data","payload")
-#     assert book_details['status'] == 201, f"book not created => {data}"
-
-# #    4).1) missing required field
-# @pytest.mark.parametrize("data", "payload",[
-#     ({"author":"ram", "category":"Drama" , "publish_date":" 2000-07-23", "is_available":True},
-#      {"is_super":True})
-# ])
-# def test_createBook_missing_field("data", "payload"):
-#     book_details = createBook(data, payload)
-#     assert book_details['status'] == 500, f"missing 'book_name' field => {data}"
-    
-
-
-# #5) update a book by its id
-# @pytest.mark.parametrize("id,data, payload",[
-#   (77, {"book_name": "19201", "author": "J.D. Marathon ", "category": "Drama", "publish_date": "2000-07-17"},
-#    {"is_super": True}),
-# ])
-# def test_update_book( id,data, payload):
-#     book_details = update_book(data,id, payload)
-#     assert book_details['status'] == 201, f"book not updated => {data}, id:{id}"
-
-
-# # 6)delete a book by its book id
-# @pytest.mark.parametrize("id,payload",[(82,{"is_super": True}),])
-# def test_delete_book(id,payload):
-#     book_details = delete_book(id,payload)
-#     assert len(book_details) > 0, f"There is no book => {id}"
-
-# @pytest.fixture
-# def valid_payload():
-#     return {"is_super": True}
-
-# @pytest.fixture
-# def invalid_payload():
-#     return {"is_super": False}
+# create book with admin authentication
 
 # @pytest.mark.parametrize("data", [
-#     {"book_name": "199011", "author": "J.D. Marathon", "category": "Drama", "publish_date": "2000-07-16", "is_available": True},
+#     {"book_name": "python1", "author": "vaishnavi", "category": "programming", "publish_date": "2022-01-01", "is_available": True},
+#    
 # ])
-# # def test_createBook_with_fixture(data, valid_payload):
-# #     book_details = createBook(data, valid_payload)
-# #     assert book_details['status'] == 201
+# def test_create_book(data,test_get_admin_access_token):
+#     headers = {"Authorization": f"Bearer {test_get_admin_access_token}",
+#                "is_super": True }
+    
+#     response = createBook(data, headers)
+    
+#     assert response["status"] == 201
+#     assert response["message"] == "Book created successfully"
 
-# def test_createBook_unauthorized(data, invalid_payload):
-#     book_details = createBook(data, invalid_payload)
-#     assert book_details['status'] == 403
+# to check create book without admin authorization
+
+@pytest.mark.parametrize("data", [
+    {"book_name": "python1100", "author": "vaishnavi", "category": "programming", "publish_date": "2022-01-01", "is_available": True}, 
+])
+def test_create_book_without_admin_authorization(data):
+    headers = {}
+    with pytest.raises(HTTPException) as exc_info:
+        createBook(data, headers)
+    assert exc_info.value.status_code == 403
+    assert exc_info.value.detail == "You are not authorized to create a book"
+
+# check book name is given
+@pytest.mark.parametrize("data", [
+    { "author": "vaishnavi", "category": "programming", "publish_date": "2022-01-01", "is_available": True}, 
+])
+def test_check_book_name_is_available(data, test_get_admin_access_token):
+    headers = {"Authorization": f"Bearer {test_get_admin_access_token}",
+               "is_super": True }
+    
+    with pytest.raises(HTTPException) as exc_info:
+        createBook(data, headers)
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "Book name is required"
 
 
 
-# Assuming Book model and a search_books function exists
-# For seeding test data and setting up the database session
-@pytest.fixture
-def setup_books(db):
-    # Seed some books into the test database
-    book1 = Book(name="To Kill a Mockingbird", author="Harper Lee", category="Drama", is_available=True)
-    book2 = Book(name="DSA Guide", author="John Doe", category="Educational", is_available=False)
-    db.add_all([book1, book2])
-    db.commit()
+#  check author name is their
+@pytest.mark.parametrize("data", [
+    { "book_name": "python11", "category": "programming", "publish_date": "2022-01-01", "is_available": True},
+])
+def test_check_author_name_is_available(data, test_get_admin_access_token):
+    headers = {"Authorization": f"Bearer {test_get_admin_access_token}",
+               "is_super": True }
+    
+    with pytest.raises(HTTPException) as exc_info:
+        createBook(data, headers)
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "Author name is required"
 
-# Search books by name or author
-@pytest.mark.parametrize("search_param", ["Harper Lee", "DSA"])
-def test_search_books_by_name_or_author(search_param, setup_books):
-    book_details = search_books(search_param)
-    assert len(book_details) > 0, f"No books found for search parameter: {search_param}"
 
-# Search books by category
-@pytest.mark.parametrize("category", ["Drama", "Educational"])
-def test_search_books_by_category(category, setup_books):
-    book_details = search_books(category)
-    assert len(book_details) > 0, f"No books found with category: {category}"
+#  check category is their
+@pytest.mark.parametrize("data", [
+    { "book_name": "python11", "author": "vaishnavi", "publish_date": "2022-01-01", "is_available": True},
+])
+def test_check_category_is_available(data, test_get_admin_access_token):
+    headers = {"Authorization": f"Bearer {test_get_admin_access_token}",
+               "is_super": True }
+    
+    with pytest.raises(HTTPException) as exc_info:
+        createBook(data, headers)
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "Category is required"
 
-# Search books by availability
-@pytest.mark.parametrize("is_available", [True, False])
-def test_search_books_by_availability(is_available, setup_books):
-    book_details = search_books(is_available)
-    assert len(book_details) > 0, f"No books found for availability: {is_available}"
+# check publish date is their
+@pytest.mark.parametrize("data", [
+    { "book_name": "python11", "author": "vaishnavi", "category": "programming", "is_available": True},
+])
+def test_check_publish_date_is_available(data, test_get_admin_access_token):
+    headers = {"Authorization": f"Bearer {test_get_admin_access_token}",
+               "is_super": True }
+    
+    with pytest.raises(HTTPException) as exc_info:
+        createBook(data, headers)
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "Publish date is required"
 
+
+#  check is available status is their
+@pytest.mark.parametrize("data", [
+    { "book_name": "python11", "author": "vaishnavi", "category": "programming", "publish_date": "2022-01-01"},
+])
+def test_check_is_available_status_is_available(data, test_get_admin_access_token):
+    headers = {"Authorization": f"Bearer {test_get_admin_access_token}",
+               "is_super": True }
+    
+    with pytest.raises(HTTPException) as exc_info:
+        createBook(data, headers)
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "is_available is required"
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# 2.find a book 
+
+@pytest.mark.parametrize("id", [
+    78, 
+])
+def test_get_existing_book(id):
+    response = get_book(id)  
+    assert response["status"] == 200
+    assert "data" in response
+    assert response["data"]["id"] == id
 
 
 #  get a single book get_book (single book)
-#  book id must be provided
-#  
+@pytest.mark.parametrize("id", [
+    1,
+])
+def test_get_book(id):
+    with pytest.raises(HTTPException) as exc_info:
+        get_book(id)
+    assert exc_info.value.status_code == 500
+    assert exc_info.value.detail == "Failed to find book"
 
 
-# update book
+ 
+#  book valid id must be provided
+@pytest.mark.parametrize("id", [
+    0,
+]) 
+def test_check_valid_id_provided(id):
+    with pytest.raises(HTTPException) as exc_info:
+        get_book(id)
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "Please provide valid id"
+
+
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# 3.get all book list
+
+@pytest.mark.parametrize("data", [
+    ({"user_id": 9}),
+])
+def test_get_all_books(data):
+    response = get_all_books(data)      
+    assert response["message"] == "Books list"
+    assert "book" in response
+
+
+# Pagination Functionality
+@pytest.mark.parametrize("data", [
+    ({"user_id": 9, "page": 1, "per_page": 10}),
+    
+])
+def test_get_all_books_pagination(data):
+    response = get_all_books(data)      
+    assert response["message"] == "Books list"
+    assert "book" in response
+
+
+# Missing user_id in Payload
+@pytest.mark.parametrize("data", [
+    ({"page": 1, "per_page": 10}),
+])
+def test_get_all_books_missing_user_id(data):
+    with pytest.raises(HTTPException) as exc_info:
+        get_all_books(data)
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == 'User ID is required'
+
+
+# failed to find book list 
+@pytest.mark.parametrize("data", [
+    ({"user_id": 0}),
+])
+def test_get_all_books_missing_user_id(data):
+    with pytest.raises(HTTPException) as exc_info:
+        get_all_books(data)
+    assert exc_info.value.status_code == 500
+    assert exc_info.value.detail == "Failed to find book list"
+
+
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+# @pytest.mark.parametrize("user_id", [
+#     7,
+# ])
+
+# def test_get_all_books():
+#     payload = {"user_id": 7}
+#     response = get_all_books(payload) 
+#     assert response["message"] == 'Books list'
+#     assert "book" in response
+#     # assert response["book"]["message"] == 'Books list'
+    
+
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+# 4. update book 
+@pytest.mark.parametrize("id, update", [
+    ("117", { "book_name": "pythonXYZ", "author": "vaishnavi", "category": "programming", "publish_date": "2022-01-01", "is_available": True}),
+])
+def test_update_book(id, update):
+    payload = {"is_super": True}
+    
+    data = BookUpdate(**update)
+    response = update_book(data, id, payload)
+    assert response["status"] == 201
+    assert response["message"] == "Book updated successfully"
+
+
+#  if the paylod not pass then return msg you are not authorized 
+@pytest.mark.parametrize("id, update", [
+    ("0", { "book_name": "pythonXYZ", "author": "vaishnavi", "category": "programming", "publish_date": "2022-01-01", "is_available": True}),
+]) 
+def test_update_book_not_authorized(id, update):
+    payload = {"is_super": False}
+    
+    data = BookUpdate(**update)
+    with pytest.raises(HTTPException) as exc_info:
+        update_book(data, id, payload)
+    assert exc_info.value.status_code == 403
+    assert exc_info.value.detail == "You are not authorized to update a book"
+
+
 #  id must be provided 
+@pytest.mark.parametrize("id, update", [
+    ("", { "book_name": "pythonXYZ", "author": "vaishnavi", "category": "programming", "publish_date": "2022-01-01", "is_available": True}),
+])
+def test_update_book_id_not_provided(id, update):
+    payload = {"is_super": True}
+    
+    data = BookUpdate(**update)
+    with pytest.raises(HTTPException) as exc_info:
+        update_book(data, id, payload)
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "Please provide a valid id"
+
+
+
 #  if the book is available then only update data otherwise print msg book is not available
+# @pytest.mark.parametrize("id, update", [
+#     ("1", { "book_name": "pythonXYZ", "author": "vaishnavi", "category": "programming", "publish_date": "2022-01-01", "is_available": False}),
+# ])
+# def test_update_book_not_available(id, update):
+#     payload = {"is_super": True}
+    
+#     data = BookUpdate(**update)
+#     with pytest.raises(HTTPException) as exc_info:
+#         update_book(data, id, payload)
+#     assert exc_info.value.status_code == 404
+#     assert exc_info.value.detail == "Book not found "
 
 
-#    delete book 
-# check by id 
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# 5. search book
+
+# (search_param: str = None, category: str = None, is_available: bool = None, payload: Dict= Depends(verifyToken))
+
+@pytest.mark.parametrize("search_param, category, is_available", [
+    ("python", "programming", True),
+    ("vaishnavi", "programming", True),
+    ("play 0.11234","Drama",True)
+])
+def test_search_book(search_param, category, is_available):
+    payload = {"is_super": True}
+    response = search_books(search_param, category, is_available, payload)
+    
+    assert response["status"] == 200 
+    assert "data" in response  
+    assert isinstance(response["data"], list)  
+    assert len(response["data"]) > 0  
+
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+#  6.  delete book 
+# @pytest.mark.parametrize("id", [
+#     ("107"),
+# ])
+# def test_delete_book(id):
+#     payload = {"is_super": True}
+#     response = delete_book(id, payload)
+#     assert response["status"] == 201
+#     assert response["message"] == "Book deleted successfully"
+
+
+# check if not admin then return msg you are not authorized to delete a book
+@pytest.mark.parametrize("id", [
+    ("102"),
+])
+def test_delete_book_not_authorized(id):
+    payload = {"is_super": False}
+    with pytest.raises(HTTPException) as exc_info:
+        delete_book(id, payload)
+    assert exc_info.value.status_code == 403
+    assert exc_info.value.detail == "You are not authorized to delete a book"
+
+
 # check if that book is available or not ,then print msg book is not available  
 
+@pytest.mark.parametrize("id", [
+    ("102"),
+])
+def test_delete_book_not_available(id):
+    payload = {"is_super": True}
+    with pytest.raises(HTTPException) as exc_info:
+        delete_book(id, payload)
+    assert exc_info.value.status_code == 500
+    assert exc_info.value.detail == "Failed to delete book "
 
-# search book
-# (search_param: str = None, category: str = None, is_available: bool = None, payload: Dict= Depends(verifyToken))
-#  search book by its name , author 
-#  search book by  category
-#  search book by its is_available
-#  
-
-
-    
-# create book
-# to check create book without admimn authorization 
-# check if it is admin then only he can create book
-# check book name is available 
-#  check author name is their
-#  check category is their
-# check publish date is their
-#  check is available status is their
-
-
-# 

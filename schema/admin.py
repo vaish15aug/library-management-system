@@ -1,5 +1,9 @@
 from pydantic import BaseModel, EmailStr, constr
+from typing import Optional
 
+class AdminUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[int] = None
 
 class AdminCreate(BaseModel):
     name: str 
@@ -17,9 +21,9 @@ class AdminLogout(BaseModel):
     email: EmailStr
     
 
-class AdminUpdate(BaseModel):
-    name:str
-    phone:int
+# class AdminUpdate(BaseModel):
+#     name:str
+#     phone:int
 
 
 class AdminResponse(BaseModel):

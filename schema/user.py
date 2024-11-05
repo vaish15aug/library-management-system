@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, constr
 from typing import Optional
 
+
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     phone: Optional[int] = None
@@ -17,9 +18,9 @@ class UserLogin(BaseModel):
     password:constr(min_length=8)
 
 
-class UserLogout(BaseModel):
-    email:EmailStr
-    password:constr(min_length=8)
+# class UserLogout(BaseModel):
+#     email:EmailStr
+#     password:constr(min_length=8)
 
 
 # class UserUpdate(BaseModel):
@@ -33,6 +34,7 @@ class DeleteUser(BaseModel):
     password:constr(min_length=8)
     phone: int
 
+
 class UserResponse(BaseModel):
     id: int
     name: str
@@ -40,6 +42,7 @@ class UserResponse(BaseModel):
     phone: int
     class Config:
         from_attributes = True
+
 
 class UserLogout(BaseModel):
    email:EmailStr

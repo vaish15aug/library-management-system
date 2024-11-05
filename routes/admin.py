@@ -32,3 +32,4 @@ def update(update:AdminUpdate,  payload:Dict = Depends(verifyToken)):
 @adminRouter.get("/get_single")
 def findUser(payload:Dict = Depends(verifyToken)):
     return get_admin(payload)
+
